@@ -10,22 +10,23 @@ Created on Sat Sep 26 20:32:33 2020
 from random import Random
 from enum import Enum
 import matplotlib.pyplot as plt
+from math import sqrt
 
 ##############################################################################
 def main():    
     min_distance=10
-    x_boundaries=[0,100]
-    y_boundaries=[0,60]
+    x_boundaries=[0,99]
+    y_boundaries=[0,71]
     
     num_round_tables=15
-    round_table_radius=4
+    round_table_radius=3
     num_square_tables=3
     square_table_radius=2
     
-    num_arrangements=500
+    num_arrangements=200
     num_generations=300
-    percent_parents_from_previous_generation=0.1
-    percent_new_arrangements_each_generation=0.3
+    percent_parents_from_previous_generation=0.01
+    percent_new_arrangements_each_generation=0.80
         
     print("Begin Table Optimization")
     
@@ -74,19 +75,19 @@ class table:
     
 class arrangement:
     
-    def __init__(self, min_distance=10, x_boundary=[0,100], y_boundary=[0,100]):
+    def __init__(self, min_distance=10, x_boundary=[0,100], y_boundary=[0,100], margin_distance=10):
         self.rnd=Random()
         self.rnd.seed()
         self.tables=[]
         self.min_distance=min_distance
         self.x_boundary=x_boundary
-        self.y_boundary=y_boundary
+        self.y_boundary=y_boundary        
+        self.margin_distance = margin_distance
         
-        half_min_distance = self.min_distance / 2
-        self.x_boundary_min=self.x_boundary[0] + half_min_distance
-        self.x_boundary_max=self.x_boundary[1] - half_min_distance
-        self.y_boundary_min=self.y_boundary[0] + half_min_distance
-        self.y_boundary_max=self.y_boundary[1] - half_min_distance
+        self.x_boundary_min=self.x_boundary[0] + self.margin_distance
+        self.x_boundary_max=self.x_boundary[1] - self.margin_distance
+        self.y_boundary_min=self.y_boundary[0] + self.margin_distance
+        self.y_boundary_max=self.y_boundary[1] - self.margin_distance
             
     def initializeTables(self, new_tables):
         self.tables=new_tables
@@ -130,12 +131,23 @@ class arrangement:
                 square_y.append(table.y)
                 square_r.append(pow(table.radius,scale_factor))
         
-        fig, axs = plt.subplots()
-        axs.set(xlim=self.x_boundary, ylim=self.y_boundary)
-        axs.scatter(round_x, round_y, s=round_r, marker='o', c='b')
-        axs.scatter(square_x, square_y, s=square_r, marker='s', c='b')
+        plt.axes()        
+        for table in self.tables:
+            if table.shape is Shape.circle:
+                plt.gca().add_patch(self.__drawCircle(table.x, table.y, table.radius))
+            elif table.shape is Shape.square:
+                plt.gca().add_patch(self.__drawSquare(table.x, table.y, table.radius))
+        plt.axis('scaled')
         plt.show()
-        return fig, axs
+    
+    def __drawSquare(self, x, y, r):
+        l=r*sqrt(2)
+        x=x-(l/2)
+        y=y-(l/2)
+        return plt.Rectangle((x, y), l, l, fc='orange',ec='orange')
+        
+    def __drawCircle(self, x, y, r):
+        return plt.Circle((x, y), r, fc='blue',ec='blue')
         
     
 class optimizer:
@@ -152,9 +164,9 @@ class optimizer:
                 dx = i.x - j.x
                 dy = i.y - j.y
                 m = i.radius + arrangement.min_distance + j.radius
-                z = ( (pow(dx,2) + pow(dy,2)) / pow(m,2) ) -1
+                z = ( (pow(dx,2) + pow(dy,2)) / pow(m,2) )
                 if z < 0:
-                    e = e - z
+                    e = e + z
             error += e
         return error
         
