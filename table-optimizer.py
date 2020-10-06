@@ -81,12 +81,11 @@ def optimize_number():
     num_generations=int(config['algorithm']['number_of_generations'])
     percent_parents_from_previous_generation=float(config['algorithm']['percent_parents_from_previous_generation'])
     percent_new_arrangements_each_generation=float(config['algorithm']['percent_new_arrangements_each_generation'])
+    number_of_epochs=int(config['algorithm']['number_of_epochs'])
     
-    num_round_tables=num_round_tables*10
-    num_square_tables=num_square_tables*10
     final_error=(num_round_tables + num_square_tables) *2
     epoch_counter=0
-    while final_error > 0.0 or (num_round_tables + num_square_tables) == 0 or epoch_counter > 10000:
+    while final_error > 0.0 or (num_round_tables + num_square_tables) == 0 or epoch_counter > number_of_epochs:
         print(" ** Epoch "+str(epoch_counter)+" ** ")
         print(" * "+str(num_round_tables)+" round tables")
         print(" * "+str(num_square_tables)+" square tables")
@@ -100,11 +99,11 @@ def optimize_number():
         for i in range(num_arrangements):
             a.initializeTables(a.tables)
             arrangements.append(a.copy())
-                    
+        
         print("Initializing Optimizer")
         opt = optimizer(percent_parents_from_previous_generation, 
                     percent_new_arrangements_each_generation)
-    
+        
         print("Running Optimizer")
         optimized_arrangements = opt.optimize(arrangements, num_generations, False)
         
@@ -116,6 +115,7 @@ def optimize_number():
             else:
                 num_square_tables = int(config['tables']['number_of_square_tables'])
                 num_round_tables -= 1
+        epoch_counter += 1
         
     print("Displaying final results")
     for oa in optimized_arrangements:

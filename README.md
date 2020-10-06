@@ -12,6 +12,9 @@ It accepts one of two flags:
 * --optimize-number       Optimizes the number of tables within the room,
                             as well as their positioning.
                             
+When searching for the optimum of the 'number_of_round_tables' and 'number_of_square_tables'
+parameters are used as the maximum values for those fields.
+
 ### Configuration
 
 The table optimizer algorithm can be configured via the config.ini.  The purpose
@@ -44,6 +47,7 @@ The '[algorithm]' configures the algorithm itself.
 [algorithm]               
 number_of_arrangements   // The population of each generation
 number_of_generations
-percent_parents_from_previous_generation = 0.01
-percent_new_arrangements_each_generation = 0.50
+percent_parents_from_previous_generation 
+percent_new_arrangements_each_generation 
+number_of_epochs         // Used only when finding the optimum number of tables
 ```
