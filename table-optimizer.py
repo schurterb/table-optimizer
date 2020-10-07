@@ -83,9 +83,11 @@ def optimize_number():
     percent_new_arrangements_each_generation=float(config['algorithm']['percent_new_arrangements_each_generation'])
     number_of_epochs=int(config['algorithm']['number_of_epochs'])
     
+    current_max_valid_number_of_tables=0
     final_error=(num_round_tables + num_square_tables) *2
     epoch_counter=0
-    while final_error > 0.0 or (num_round_tables + num_square_tables) == 0 or epoch_counter > number_of_epochs:
+    top_arrangements = []    
+    while (num_round_tables + num_square_tables) > 0 or epoch_counter > number_of_epochs:
         print(" ** Epoch "+str(epoch_counter)+" ** ")
         print(" * "+str(num_round_tables)+" round tables")
         print(" * "+str(num_square_tables)+" square tables")
@@ -109,17 +111,27 @@ def optimize_number():
         
         final_error=optimized_arrangements[0][1]
         print("Best result from epoch "+str(epoch_counter)+": "+str(final_error))
-        if final_error > 0.0:
-            if num_square_tables > 0:
-                num_square_tables -= 1
-            else:
-                num_square_tables = int(config['tables']['number_of_square_tables'])
-                num_round_tables -= 1
+        if final_error <= 0.0:
+            add_arrangement = True
+            for a in top_arrangements:
+                if len(optimized_arrangements[0][0].tables) < len(a.tables):
+                    add_arrangement = False
+            if add_arrangement:
+                print("Adding new valid arrangement.")
+                top_arrangements.append(optimized_arrangements[0][0])
+        if num_square_tables > 0:
+            num_square_tables -= 1
+        else:
+            num_square_tables = int(config['tables']['number_of_square_tables'])
+            num_round_tables -= 1                
         epoch_counter += 1
         
     print("Displaying final results")
-    for oa in optimized_arrangements:
-        oa[0].display(oa[1])
+    counter = 1
+    for a in top_arrangements:
+        a.display()
+        print("  "+str(counter)+" - "+str(a.num_round)+" round tables, "+str(a.num_square)+" square tables")
+        counter += 1
     
     print("End Table Optimization")
 
@@ -152,6 +164,8 @@ class arrangement:
         self.x_boundary=x_boundary
         self.y_boundary=y_boundary        
         self.margin_distance = margin_distance
+        self.num_round=0
+        self.num_square=0
         
         self.x_boundary_min=self.x_boundary[0] + self.margin_distance
         self.x_boundary_max=self.x_boundary[1] - self.margin_distance
@@ -163,6 +177,10 @@ class arrangement:
         for table in self.tables:
             table.x = self.rnd.uniform(self.x_boundary_min, self.x_boundary_max)
             table.y = self.rnd.uniform(self.y_boundary_min, self.y_boundary_max)
+            if table.shape is Shape.circle:
+                self.num_round += 1
+            else:
+                self.num_square += 1
             
     def mutateTables(self, percentage=0.2, max_change=5):
         max_change = float(max_change)
@@ -193,7 +211,7 @@ class arrangement:
         if error is not None:
             plt.title("Optimized Table Arrangement - Error = "+str(error))
         else:
-            plt.title("Optimized Table Arrangement")
+            plt.title("Optimized Table Arrangement for "+str(self.num_round)+" round tables and "+str(self.num_square)+" square tables.")
         plt.show()
     
     def __drawSquare(self, x, y, r):

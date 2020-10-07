@@ -51,3 +51,11 @@ percent_parents_from_previous_generation
 percent_new_arrangements_each_generation 
 number_of_epochs         // Used only when finding the optimum number of tables
 ```
+
+### Setup
+
+Matplotlib is the only required package not normally included with python3.  It
+can easily be installed by running the following command.
+```
+python3 -m pip install matplotlib
+```
