@@ -200,6 +200,7 @@ class arrangement:
         return new_arrangement
     
     def display(self, error=None):
+        plt.figure()
         plt.axes(xlim=self.x_boundary, ylim=self.y_boundary)
         plt.grid(True, 'major', 'both')
         for table in self.tables:
@@ -211,7 +212,8 @@ class arrangement:
         if error is not None:
             plt.title("Optimized Table Arrangement - Error = "+str(error))
         else:
-            plt.title("Optimized Table Arrangement for "+str(self.num_round)+" round tables and "+str(self.num_square)+" square tables.")
+            plt.title("Optimized Table Arrangement")
+            #plt.title("Optimized Table Arrangement for "+str(self.num_round)+" round tables and "+str(self.num_square)+" square tables.")
         plt.show()
     
     def __drawSquare(self, x, y, r):
